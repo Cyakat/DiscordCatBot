@@ -3,6 +3,7 @@ var auth = require('../cat.json');
 var fs = require('fs');
 var aryChannelIDs;
 var math = require('math');
+var totalMeows;
 const bot = new Commando.Client({
    token: auth.token,
    autorun: true
@@ -16,6 +17,7 @@ const bot = new Commando.Client({
 readChannelIDs();
 console.log(aryChannelIDs);
 nextMeow = nextRandomMeow();
+console.log(nextMeow);
 
 
 bot.on('message', msg =>
@@ -31,11 +33,16 @@ bot.on('message', msg =>
   content = content.toLowerCase();
   if(content.includes('auggie'))
   {
-    msg.channel.send('Meow');
+    msg.channel.send('Meow', { tts: true});
+    addToMeowCount(msg);
   }
   if (content === 'auggie add channel')
   {
     addChannelToList(msg.channel.id);
+  }
+  if (content === 'auggie meows')
+  {
+    getTotalMeows(msg);
   }
 
   nextMeow = timeToMeow(nextMeow);
@@ -73,6 +80,8 @@ function timeToMeow(nextMeow)
   {
     sendToAllChannels('Meow');
     nextMeow = nextRandomMeow();
+    console.log(nextMeow);
+
   }
   return nextMeow;
 }
@@ -105,7 +114,24 @@ function sendToAllChannels(text)
   }
 }
 
-function readChannelIDs(){
+function addToRandomMeowCount()
+{
+  fs.readFile('./RandomMeows.txt' , (err,data) => {
+    if (err) throw err;
+
+    data = data.toString();
+    data = data.replace(/\n/, '');
+    data = data.replace(/\r/, '');
+    randMeows = parseInt(data);
+
+    console.log(randMeows);
+    fs.writeFile('./RandomMeows.txt', randMeows+1, (err, data) => {
+      if (err) throw err;
+    });
+  });
+}
+
+function readChannelIDs() {
   fs.readFile('./ChannelIDs.txt' , (err,data) => {
   if (err) throw err;
 
@@ -169,4 +195,42 @@ function checkChannels()
     }
   }
   writeChannelIDs();
+}
+
+function getTotalMeows(msg)
+{
+  fs.readFile('./Meows.txt', (err, data) => {
+    if (err) throw err;
+    meows = data;
+  });
+
+  fs.readFile('./RandomMeows.txt', (err, data) => {
+    if (err) throw err;
+    data = data.toString();
+    console.log(data);
+    data = data.replace(/\n/, '')
+    data = data.replace(/\r/, '')
+    randMeows = data;
+    console.log(randMeows);
+
+    msg.channel.send('I have randomly meowed ' + randMeows + ' times and ' + meows + ' times normally!');
+
+  });
+}
+
+function addToMeowCount(msg)
+{
+  fs.readFile('./Meows.txt' , (err,data) => {
+    if (err) throw err;
+
+    data = data.toString();
+    data = data.replace(/\n/, '');
+    data = data.replace(/\r/, '');
+    meows = parseInt(data);
+
+    console.log(meows);
+    fs.writeFile('./Meows.txt', meows+1, (err, data) => {
+      if (err) throw err;
+    });
+  });
 }
