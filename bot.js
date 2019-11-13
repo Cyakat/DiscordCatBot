@@ -1,4 +1,4 @@
-const Commando = require('discord.js-commando');
+const Commando = require('discord.js');
 var auth = require('../cat.json');
 var fs = require('fs');
 var aryChannelIDs;
@@ -45,7 +45,7 @@ bot.on('message', msg =>
     getTotalMeows(msg);
   }
 
-  nextMeow = timeToMeow(nextMeow);
+  nextMeow = timeToMeow(nextMeow, msg);
 
 });
 
@@ -72,7 +72,7 @@ function nextRandomMeow()
   return nextMeow;
 }
 
-function timeToMeow(nextMeow)
+function timeToMeow(nextMeow, msg)
 {
   var date = getDate();
 
@@ -81,6 +81,7 @@ function timeToMeow(nextMeow)
     sendToAllChannels('Meow');
     nextMeow = nextRandomMeow();
     console.log(nextMeow);
+    addToRandomMeowCount(msg);
 
   }
   return nextMeow;
