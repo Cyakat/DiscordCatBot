@@ -33,7 +33,15 @@ bot.on('message', msg =>
   content = content.toLowerCase();
   if(content.includes('auggie'))
   {
-    msg.channel.send('Meow', { tts: true});
+    tts = checkIfTTS(channelID)
+    if(tts)
+    {
+      msg.channel.send('Meow', { tts: true});
+    }
+    else
+    {
+      msg.channel.send('Meow');
+    }
     addToMeowCount(msg);
   }
   if (content === 'auggie add channel')
@@ -234,4 +242,76 @@ function addToMeowCount(msg)
       if (err) throw err;
     });
   });
+}
+
+function addChannelToTTS()
+{
+  var channelExists = false;
+  readTTSIDs();
+  for (var i = 0; i < aryTTSIDs.length; i++)
+  {
+    if (channelID === aryTTSIDs[i])
+    {
+      channelExists = true;
+    }
+  }
+  if (!channelExists)
+  {
+    aryTTSIDs[aryTTSIDs.length] = channelID;
+    writeTTSIDs();
+  }
+}
+
+function readTTSIDs()
+{
+  fs.readFile('./ttsChannels.txt' , (err,data) => {
+  if (err) throw err;
+
+  data = data.toString();
+  data = data.replace(/\n/, '')
+  data = data.replace(/\r/, '')
+  aryTTSIDs = data.split(',');
+
+  console.log('tts Channels Loaded');
+  //console.log(aryTTSIDs);
+  return aryTTSIDs;
+
+  });
+}
+
+function writeTTSIDs() {
+  fs.writeFile('./ttsChannels.txt' , aryTTSIDs, (err,data) => {
+      if(err) throw err;
+      console.log('Channels Written')
+      //console.log(aryTTSIDs);
+      readChannelIDs();
+      indexTTS = aryTTSIDs.length-1;
+  });
+  return aryTTSIDs;
+}
+
+function toggleTTS()
+{
+
+}
+
+function checkIfTTS()
+{
+  console.log('Checking Channels')
+  for (var i = 0; i < aryTTSIDs.length; i++)
+  {
+    console.log(aryTTSIDs[i]);
+    console.log(i);
+    channelExists = bot.channels.get(aryTTSIDs[i]) === undefined;
+    console.log(channelExists);
+    if (channelExists)
+    {
+      for (var o = i; o < aryTTSIDs.length-1; o++)
+      {
+        console.log(aryTTSIDs);
+        aryTTSIDs[o] = aryTTSIDs[o+1];
+      }
+    }
+  }
+  writeTTSIDs();
 }
