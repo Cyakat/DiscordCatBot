@@ -52,6 +52,10 @@ bot.on('message', msg =>
   {
     getTotalMeows(msg);
   }
+  if (content === 'auggie toggle tts')
+  {
+    toggleTTS(checkIfTTS())
+  }
 
   nextMeow = timeToMeow(nextMeow, msg);
 
@@ -262,6 +266,33 @@ function addChannelToTTS()
   }
 }
 
+function removeChannelFromTTS()
+{
+  breaking = false
+  readTTSIDs()
+  for(var i = 0; i < aryTTSIDs.length; i ++)
+  {
+    if(msg.channel.id === aryTTSIDs[i])
+    {
+      for(var o = i; o < aryTTSIDs.length; i++)
+      {
+        aryTTSIDs[o] = aryTTSIDs[o+1]
+        if(o === aryTTSIDs.length-1)
+        {
+          aryTTSIDs[aryTTSIDs.length-1] = undefined
+          breaking = true
+          break
+        }
+      }
+    }
+    if(breaking)
+    {
+      break
+    }
+  }
+  writeTTSIDs()
+}
+
 function readTTSIDs()
 {
   fs.readFile('./ttsChannels.txt' , (err,data) => {
@@ -290,28 +321,29 @@ function writeTTSIDs() {
   return aryTTSIDs;
 }
 
-function toggleTTS()
+function toggleTTS(tts)
 {
-
+  if(tts)
+  {
+    removeChannelFromTTS()
+  }
+  else
+  {
+    addChannelToTTS()
+  }
 }
 
 function checkIfTTS()
 {
-  console.log('Checking Channels')
-  for (var i = 0; i < aryTTSIDs.length; i++)
+  tts = false
+  console.log('checking to see if channel has tts enabled')
+  for(var i = 0;i < aryTTSIDs.length; i++)
   {
-    console.log(aryTTSIDs[i]);
-    console.log(i);
-    channelExists = bot.channels.get(aryTTSIDs[i]) === undefined;
-    console.log(channelExists);
-    if (channelExists)
+    if(aryChannelIDs[i] === channelID)
     {
-      for (var o = i; o < aryTTSIDs.length-1; o++)
-      {
-        console.log(aryTTSIDs);
-        aryTTSIDs[o] = aryTTSIDs[o+1];
-      }
+      tts = true
+      break;
     }
   }
-  writeTTSIDs();
+  return tts
 }
