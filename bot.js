@@ -44,7 +44,10 @@ bot.on('message', msg =>
   {
     getTotalMeows(msg);
   }
-
+  if (content === 'auggie meow now' + toString(nextMeow))
+  {
+    sendToAllChannels('Meow')
+  }
   nextMeow = timeToMeow(nextMeow, msg);
 
 });
