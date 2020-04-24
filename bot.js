@@ -1,5 +1,5 @@
 const Commando = require('discord.js');
-var auth = require('../cat.json');
+var auth = require('../test.json');
 var fs = require('fs');
 var aryChannelIDs;
 var math = require('math');
@@ -44,9 +44,10 @@ bot.on('message', msg =>
   {
     getTotalMeows(msg);
   }
-  if (content === 'auggie meow now' + toString(nextMeow))
+  if (content === 'meow now' && user === '249382933054357504')
   {
     sendToAllChannels('Meow')
+    addToRandomMeowCount(msg);
   }
   nextMeow = timeToMeow(nextMeow, msg);
 
