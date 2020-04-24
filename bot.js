@@ -1,5 +1,5 @@
 const Commando = require('discord.js');
-var auth = require('../../test.json');
+var auth = require('../test.json');
 var fs = require('fs');
 var aryChannelIDs;
 var aryTTSIDs;
@@ -60,7 +60,6 @@ bot.on('message', msg =>
     msg.channel.send('Toggling tts!')
     toggleTTS(checkIfTTS(channelID),channelID)
   }
-
   nextMeow = timeToMeow(nextMeow, msg);
 
 });
