@@ -1,4 +1,4 @@
-# DiscordCatBot
+# DiscordCatBot V1.1
 It's just supposed to be a copy of my cat for discord. It will meow every so often. Will also meow when mentioned.
 # Commands
 * saying 'auggie' in any part of a message will cause him to meows with tts. The tts can be disabled with 'auggie toggle tts'
