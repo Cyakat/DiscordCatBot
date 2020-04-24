@@ -2,6 +2,7 @@ const Commando = require('discord.js');
 var auth = require('../test.json');
 var fs = require('fs');
 var aryChannelIDs;
+var aryTTSIDs;
 var math = require('math');
 var totalMeows;
 const bot = new Commando.Client({
@@ -15,6 +16,7 @@ const bot = new Commando.Client({
   console.log(`Logged in as ${bot.user.tag}!`);
 });
 readChannelIDs();
+readTTSIDs();
 console.log(aryChannelIDs);
 nextMeow = nextRandomMeow();
 console.log(nextMeow);
@@ -33,7 +35,15 @@ bot.on('message', msg =>
   content = content.toLowerCase();
   if(content.includes('auggie'))
   {
-    msg.channel.send('Meow', { tts: true});
+    tts = checkIfTTS(channelID)
+    if(!tts)
+    {
+      msg.channel.send('Meow', { tts: true});
+    }
+    else
+    {
+      msg.channel.send('Meow');
+    }
     addToMeowCount(msg);
   }
   if (content === 'auggie add channel')
@@ -44,10 +54,11 @@ bot.on('message', msg =>
   {
     getTotalMeows(msg);
   }
-  if (content === 'meow now' && user === '249382933054357504')
+  if (content === 'auggie toggle tts')
   {
-    sendToAllChannels('Meow')
-    addToRandomMeowCount(msg);
+    console.log(channelID)
+    msg.channel.send('Toggling tts!')
+    toggleTTS(checkIfTTS(channelID),channelID)
   }
   nextMeow = timeToMeow(nextMeow, msg);
 
@@ -238,4 +249,142 @@ function addToMeowCount(msg)
       if (err) throw err;
     });
   });
+}
+
+function addChannelToTTS(channelID)
+{
+  console.log('inside add channel function')
+  console.log(channelID)
+  var channelExists = false;
+  readTTSIDs();
+  if(aryTTSIDs === undefined)
+  {
+    aryTTSIDs = [channelID];
+    writeTTSIDs(true)
+    console.log('aryTTSIDs')
+    console.log(aryTTSIDs)
+  }
+  else
+  {
+    for (var i = 0; i < aryTTSIDs.length; i++)
+    {
+      if (channelID === aryTTSIDs[i])
+      {
+        channelExists = true;
+      }
+    }
+
+    if (!channelExists)
+    {
+      aryTTSIDs[aryTTSIDs.length] = channelID;
+      writeTTSIDs();
+    }
+  }
+}
+
+function removeChannelFromTTS(channelID)
+{
+  console.log('removing channel from list')
+  breaking = false
+  readTTSIDs()
+  for(var i = 0; i < aryTTSIDs.length; i ++)
+  {
+    if(channelID === aryTTSIDs[i])
+    {
+      for(var o = i; o < aryTTSIDs.length; i++)
+      {
+        aryTTSIDs[o] = aryTTSIDs[o+1]
+        if(o === aryTTSIDs.length-1)
+        {
+          aryTTSIDs[aryTTSIDs.length-1] = undefined
+          breaking = true
+          break
+        }
+      }
+    }
+    if(breaking)
+    {
+      break
+    }
+  }
+  writeTTSIDs()
+}
+
+function readTTSIDs()
+{
+  fs.readFile('./ttsChannels.txt' , (err,data) => {
+  if (err) throw err;
+
+  data = data.toString();
+  data = data.replace(/\n/, '')
+  data = data.replace(/\r/, '')
+  aryTTSIDs = data.split(',');
+
+  console.log('tts Channels Loaded');
+  //console.log(aryTTSIDs);
+  return aryTTSIDs;
+
+  });
+}
+
+function writeTTSIDs(isFirst) {
+  if(isFirst === undefined)
+  {
+    fs.writeFile('./ttsChannels.txt' , aryTTSIDs, (err,data) => {
+        if(err) throw err;
+        console.log('Channels Written')
+        //console.log(aryTTSIDs);
+        readTTSIDs();
+        indexTTS = aryTTSIDs.length-1;
+    });
+    return aryTTSIDs;
+  }
+  else
+  {
+    fs.writeFile('./ttsChannels.txt', aryTTSIDs, (err,data) => {
+      if(err) throw err;
+      console.log('Writing first channel')
+      readTTSIDs();
+      indexTTS = 1;
+    });
+  }
+}
+
+function toggleTTS(tts,channelID)
+{
+  console.log('inside toggltts')
+  console.log(channelID)
+  if(tts)
+  {
+    removeChannelFromTTS(channelID)
+  }
+  else
+  {
+    console.log(channelID)
+    addChannelToTTS(channelID)
+  }
+}
+
+function checkIfTTS(channelID)
+{
+  tts = false
+  console.log('checking to see if tts channel list is empty');
+  if(aryTTSIDs === undefined)
+  {
+    console.log('channel list is empty')
+  }
+  else
+  {
+    console.log('checking to see if channel has tts enabled')
+    console.log('if the list is empty this shouldnt be here')
+    for(var i = 0;i < aryTTSIDs.length; i++)
+    {
+      if(aryTTSIDs[i] === channelID)
+      {
+        tts = true
+        break;
+      }
+    }
+  }
+  return tts
 }
