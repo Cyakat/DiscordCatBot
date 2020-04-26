@@ -72,21 +72,54 @@ bot.on('message', msg =>
 
 function addToPetCount(userID)
 {
-  petCount = readPetCountFile(userID);
-  petCount = petCount + 1;
-  writePetCountFile(userID, petCount);
+  savePetCount(userID)
+  //petCount = readPetCountFile(userID);
+  //petCount = petCount + 1;
+  //writePetCountFile(userID, petCountContainer);
 }
 
-function readPetCountFile(userID)
+function savePetCount(userID)
 {
+  var petCountList;
   fs.readFile('./petCount.txt' , (err,data) =>
   {
     if (err) throw err;
-    data = data.toString();
-    
+    petCountList = data;
+    console.log(data)
+  });
+  petCountList = petCountList.toString();
+  index = petCountList.indexOf(userID);
+  numStart = petCountList.indexOf(':') + 1;
+  numEnd = petCountList.indexOf(',') - 1;
+  petCount = petCountList.sub(numStart, numEnd);
+  console.log(petCount);
+  petCount = parseInt(petCount);
+  newPetCount = petCount + 1;
+  newPetCount = newPetCount.toString();
+  newUserCount = userID + ':' + newPetCount;
+  userCount = userID + ':' + petCount;
+  petCountList = petCountList.replace(userCount, newUserCount)
+  fs.writeFile('./petCount.txt', petCountList, (err,data) => {
+    if(err) throw err;
+    console.log('wrote pet count')
   });
 }
 
+function writePetCountFile(userID, petCountContainer)
+{
+  petCountList = petCountContainer[1];
+  petCountList = petCountList.toString();
+  index = petCountList.indexOf(userID);
+  numStart = petCountList.indexOf(':');
+  numEnd = petCountList.indexOf(',') - 1;
+  petCount = petCountList.sub(numStart, numEnd)
+  fs.writeFile('./petCount.txt', petCountList, (err,data) => {
+    if(err) throw err;
+    console.log('Writing first channel')
+    readTTSIDs();
+    indexTTS = 1;
+  });
+}
 function getDate()
 {
   var d = new Date();
