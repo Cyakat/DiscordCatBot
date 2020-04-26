@@ -60,10 +60,32 @@ bot.on('message', msg =>
     msg.channel.send('Toggling tts!')
     toggleTTS(checkIfTTS(channelID),channelID)
   }
+  if (content === 'pet auggie')
+  {
+    console.log('someone has pet auggie')
+    msg.channel.send('*purrs*')
+    addToPetCount(userID)
+  }
   nextMeow = timeToMeow(nextMeow, msg);
 
 });
 
+function addToPetCount(userID)
+{
+  petCount = readPetCountFile(userID);
+  petCount = petCount + 1;
+  writePetCountFile(userID, petCount);
+}
+
+function readPetCountFile(userID)
+{
+  fs.readFile('./petCount.txt' , (err,data) =>
+  {
+    if (err) throw err;
+    data = data.toString();
+    
+  });
+}
 
 function getDate()
 {
